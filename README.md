@@ -10,6 +10,12 @@
     npm install express sqlite3
 ```
 
+### Iniciar Servidor
+
+```sh
+   node index.js
+```
+
 ### Exemplo de JSON
 
 ```sh

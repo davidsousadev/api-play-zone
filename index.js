@@ -35,6 +35,7 @@ app.get('/users/:id', (req, res) => {
 });
 
 // Rota para criar um novo usuário
+// Apenas localmente!
 app.post('/users', (req, res) => {
   const { name, email } = req.body;
   db.run('INSERT INTO users (name, email) VALUES (?, ?)', [name, email], function(err) {
@@ -72,5 +73,5 @@ app.delete('/users/:id', (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`API rodando em http://localhost:${port}`);
+  console.log(`API rodando em http://localhost:${port}/users`);
 });
