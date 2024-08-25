@@ -1,75 +1,84 @@
-// index.js
 const express = require('express');
-// Arquivo de database
-const db = require('./database');
+const axios = require('axios');
+const cors = require('cors'); 
+require('dotenv').config();
+
 const app = express();
 const port = 3000;
 
+const apiUrl = process.env.URL;
+const apiToken = process.env.RESTDB_TOKEN;
+
 app.use(express.json());
 
-// Rota para listar todos os usuários
-app.get('/users', (req, res) => {
-  db.all('SELECT * FROM users', [], (err, rows) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    res.json({ users: rows });
-  });
+app.use(cors({
+  origin: {apiUrl}, 
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+
+const axiosInstance = axios.create({
+  baseURL: apiUrl,
+  headers: {
+    'Content-Type': 'application/json',
+    'x-apikey': apiToken,
+    'cache-control': 'no-cache'
+  }
 });
 
-// Rota para obter um usuário específico por ID
-app.get('/users/:id', (req, res) => {
-  const id = req.params.id;
-  db.get('SELECT * FROM users WHERE id = ?', [id], (err, row) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    if (!row) {
+app.get('/users', async (req, res) => {
+  try {
+    const response = await axiosInstance.get('/');
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/users/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const response = await axiosInstance.get(`/${id}`);
+    if (response.data) {
+      res.json(response.data);
+    } else {
       res.status(404).json({ error: 'User not found' });
-      return;
     }
-    res.json({ user: row });
-  });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// Rota para criar um novo usuário
-// Apenas localmente!
-app.post('/users', (req, res) => {
+app.post('/users', async (req, res) => {
   const { name, email } = req.body;
-  db.run('INSERT INTO users (name, email) VALUES (?, ?)', [name, email], function(err) {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    res.status(201).json({ id: this.lastID });
-  });
+  try {
+    const response = await axiosInstance.post('/', { name, email });
+    res.status(201).json(response.data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// Rota para atualizar um usuário por ID
-app.put('/users/:id', (req, res) => {
+app.put('/users/:id', async (req, res) => {
+  const { id } = req.params;
   const { name, email } = req.body;
-  const id = req.params.id;
-  db.run('UPDATE users SET name = ?, email = ? WHERE id = ?', [name, email, id], function(err) {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    res.json({ updatedID: id });
-  });
+  try {
+    const response = await axiosInstance.put(`/${id}`, { name, email });
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// Rota para deletar um usuário por ID
-app.delete('/users/:id', (req, res) => {
-  const id = req.params.id;
-  db.run('DELETE FROM users WHERE id = ?', id, function(err) {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
+app.delete('/users/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await axiosInstance.delete(`/${id}`);
     res.status(204).end();
-  });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 app.listen(port, () => {

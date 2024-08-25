@@ -7,7 +7,7 @@
 
 ```sh
     npm init -y
-    npm install express sqlite3
+    npm install express axios dotenv cors
 ```
 
 ### Iniciar Servidor
