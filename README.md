@@ -1,9 +1,18 @@
-# API RESTFUL NODE - VERCEL
+# API RESTFUL NODE (express) - VERCEL
 
-## Api usando node, express, sqlite3
+## Api usando node, express, restdb
 ## Api de teste para o aplicativo Play Zone
 
-### Instalação
+## Instalação
+
+### 1. Clone o repositório:
+   
+```sh
+
+   git clone https://github.com/davidsousadev/api-restful-express.git
+   cd api-restful-express
+
+```
 
 ```sh
     npm init -y
