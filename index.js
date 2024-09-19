@@ -9,6 +9,7 @@ const port = 3000;
 const apiUrl = process.env.URL;
 const apiToken = process.env.RESTDB_TOKEN;
 
+/*
 app.use(express.json());
 
 app.use(cors({
@@ -74,3 +75,37 @@ app.delete('/users/:id', async (req, res) => {
 app.listen(port, () => {
     console.log(`API listening at http://localhost:${port}/users`);
 });
+
+*/
+
+const apiKey = process.env.APIKEY;
+const apiUrlClima = process.env.URLCLIMA;
+
+app.use(express.json());
+
+app.use(cors({
+  origin: {apiKey}, 
+  methods: ['GET'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+const headers = {
+    'Content-Type': 'application/json',
+    'x-apikey': apiKey,
+    'Cache-Control': 'no-cache'
+};
+
+app.get('/clima', async (req, res) => {
+    try {
+        const response = await axios.get(apiUrlClima, { headers });
+        res.json(response.data);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.listen(port, () => {
+    console.log(`http://localhost:${port}`);
+
+});
+
